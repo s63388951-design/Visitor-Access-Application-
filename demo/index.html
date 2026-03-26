@@ -1,0 +1,2033 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>访客登记系统 - 完整演示</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Noto Sans SC -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- QRCode.js -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <style>
+        /* ========================================
+           全局样式
+           ======================================== */
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #F9FAFB;
+            color: #1F2937;
+        }
+        
+        /* ========================================
+           小程序端样式
+           ======================================== */
+        
+        .miniprogram-container {
+            width: 375px;
+            height: 667px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .miniprogram-header {
+            height: 44px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        
+        .miniprogram-content {
+            height: calc(667px - 44px);
+            overflow-y: auto;
+            background: #F9FAFB;
+        }
+        
+        /* ========================================
+           企微端样式
+           ======================================== */
+        
+        .work-container {
+            width: 375px;
+            height: 667px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* ========================================
+           PC管理端样式
+           ======================================== */
+        
+        .pc-container {
+            width: 100%;
+            min-height: 100vh;
+            background: #F9FAFB;
+        }
+        
+        .pc-sidebar {
+            width: 192px;
+            background: white;
+            border-right: 1px solid #E5E7EB;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 100;
+        }
+        
+        .pc-header {
+            height: 48px;
+            background: white;
+            border-bottom: 1px solid #E5E7EB;
+            position: fixed;
+            left: 192px;
+            right: 0;
+            top: 0;
+            z-index: 99;
+        }
+        
+        .pc-main {
+            margin-left: 192px;
+            margin-top: 48px;
+            padding: 24px;
+            min-height: calc(100vh - 48px);
+        }
+        
+        /* ========================================
+           组件样式
+           ======================================== */
+        
+        /* 按钮样式 */
+        .btn-primary {
+            background-color: #2563EB;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary:hover {
+            background-color: #1D4ED8;
+        }
+        
+        .btn-primary:disabled {
+            background-color: #D1D5DB;
+            cursor: not-allowed;
+        }
+        
+        .btn-success {
+            background-color: #10B981;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-success:hover {
+            background-color: #059669;
+        }
+        
+        .btn-danger {
+            background-color: white;
+            color: #EF4444;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border: 1px solid #EF4444;
+            cursor: pointer;
+        }
+        
+        .btn-danger:hover {
+            background-color: #FEF2F2;
+        }
+        
+        .btn-outline {
+            background-color: white;
+            color: #2563EB;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border: 1px solid #2563EB;
+            cursor: pointer;
+        }
+        
+        .btn-outline:hover {
+            background-color: #EFF6FF;
+        }
+        
+        /* 输入框样式 */
+        .input-field {
+            width: 100%;
+            height: 50px;
+            padding: 0 16px;
+            border: none;
+            border-bottom: 1px solid #E5E7EB;
+            font-size: 14px;
+            background: white;
+            transition: all 0.2s;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-bottom-color: #2563EB;
+        }
+        
+        /* 卡片样式 */
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        
+        /* 状态徽章 */
+        .badge-pending {
+            background-color: #FEF3C7;
+            color: #92400E;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .badge-success {
+            background-color: #D1FAE5;
+            color: #065F46;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .badge-danger {
+            background-color: #FEE2E2;
+            color: #991B1B;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        /* ========================================
+           动画效果
+           ======================================== */
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        
+        .animate-slideUp {
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        .animate-fadeIn {
+            animation: fadeIn 0.2s ease-out;
+        }
+        
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        /* ========================================
+           滚动条样式
+           ======================================== */
+        
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #F9FAFB;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #D1D5DB;
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9CA3AF;
+        }
+        
+        /* ========================================
+           响应式适配
+           ======================================== */
+        
+        @media (max-width: 768px) {
+            .pc-sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .pc-header {
+                left: 0;
+            }
+            
+            .pc-main {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body x-data="app()" x-init="init()">
+    
+    <!-- ========================================
+         平台选择器
+         ======================================== -->
+    <div class="fixed top-4 right-4 z-50 bg-white rounded-lg shadow-lg p-4" x-show="!isProduction">
+        <div class="text-sm font-medium text-gray-700 mb-2">选择平台:</div>
+        <div class="flex gap-2 mb-3">
+            <button @click="currentPlatform = 'miniprogram'" 
+                    :class="currentPlatform === 'miniprogram' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'"
+                    class="px-4 py-2 rounded-lg text-sm font-medium transition-all">
+                小程序端
+            </button>
+            <button @click="currentPlatform = 'work'" 
+                    :class="currentPlatform === 'work' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'"
+                    class="px-4 py-2 rounded-lg text-sm font-medium transition-all">
+                企微端
+            </button>
+            <button @click="currentPlatform = 'pc'" 
+                    :class="currentPlatform === 'pc' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'"
+                    class="px-4 py-2 rounded-lg text-sm font-medium transition-all">
+                PC管理端
+            </button>
+        </div>
+        
+        <!-- 小程序场景切换器 -->
+        <template x-if="currentPlatform === 'miniprogram'">
+            <div class="border-t pt-3">
+                <div class="text-sm font-medium text-gray-700 mb-2">场景切换:</div>
+                <div class="flex flex-wrap gap-2">
+                    <button @click="switchScenario('register')" 
+                            :class="currentPage === 'register' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'"
+                            class="px-3 py-1.5 rounded text-xs font-medium transition-all">
+                        登记页
+                    </button>
+                    <button @click="switchScenario('qrcode-pending')" 
+                            :class="currentPage === 'qrcode' && qrCodeStatus === 'pending' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'"
+                            class="px-3 py-1.5 rounded text-xs font-medium transition-all">
+                        待审核
+                    </button>
+                    <button @click="switchScenario('qrcode-approved')" 
+                            :class="currentPage === 'qrcode' && qrCodeStatus === 'approved' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'"
+                            class="px-3 py-1.5 rounded text-xs font-medium transition-all">
+                        审核通过
+                    </button>
+                    <button @click="switchScenario('qrcode-rejected')" 
+                            :class="currentPage === 'qrcode' && qrCodeStatus === 'rejected' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'"
+                            class="px-3 py-1.5 rounded text-xs font-medium transition-all">
+                        审核拒绝
+                    </button>
+                    <button @click="switchScenario('owner-review')" 
+                            :class="currentPage === 'owner-review' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'"
+                            class="px-3 py-1.5 rounded text-xs font-medium transition-all">
+                        业主审核
+                    </button>
+                </div>
+            </div>
+        </template>
+    </div>
+    
+    <!-- ========================================
+         小程序端页面
+         ======================================== -->
+    
+    <template x-if="currentPlatform === 'miniprogram'">
+        <div class="miniprogram-container">
+            
+            <!-- 小程序导航栏 -->
+            <div class="miniprogram-header">
+                <button x-show="currentPage !== 'landing'" @click="goBack()" class="absolute left-4">
+                    <i class="fas fa-arrow-left text-gray-600"></i>
+                </button>
+                <span class="text-base font-medium" x-text="getPageTitle()"></span>
+            </div>
+            
+            <!-- 小程序内容区 -->
+            <div class="miniprogram-content">
+                
+                <!-- ========================================
+                     扫码落地页 - 访客类型选择
+                     ======================================== -->
+                <template x-if="currentPage === 'landing'">
+                    <div class="relative h-full">
+                        <!-- 背景遮罩 -->
+                        <div class="absolute inset-0 bg-black bg-opacity-50" 
+                             x-show="showVisitorTypeModal"
+                             @click="showVisitorTypeModal = false"
+                             x-transition:enter="transition ease-out duration-300"
+                             x-transition:enter-start="opacity-0"
+                             x-transition:enter-end="opacity-100"
+                             x-transition:leave="transition ease-in duration-200"
+                             x-transition:leave-start="opacity-100"
+                             x-transition:leave-end="opacity-0">
+                        </div>
+                        
+                        <!-- 访客类型选择弹窗 -->
+                        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl animate-slideUp"
+                             x-show="showVisitorTypeModal"
+                             x-transition:enter="transition ease-out duration-300"
+                             x-transition:enter-start="transform translate-y-full"
+                             x-transition:enter-end="transform translate-y-0"
+                             x-transition:leave="transition ease-in duration-200"
+                             x-transition:leave-start="transform translate-y-0"
+                             x-transition:leave-end="transform translate-y-full">
+                            
+                            <div class="p-6">
+                                <div class="flex justify-between items-center mb-6">
+                                    <h3 class="text-lg font-semibold">请选择访客类型</h3>
+                                    <button @click="showVisitorTypeModal = false" class="text-gray-400 hover:text-gray-600">
+                                        <i class="fas fa-times text-xl"></i>
+                                    </button>
+                                </div>
+                                
+                                <div class="grid grid-cols-3 gap-4">
+                                    <!-- 探亲访友 -->
+                                    <div @click="confirmVisitorType('探亲访友')" 
+                                         class="flex flex-col items-center p-4 border-2 rounded-lg cursor-pointer transition-all hover:border-blue-500 hover:bg-blue-50 active:scale-95"
+                                         :class="selectedVisitorType === '探亲访友' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'">
+                                        <i class="fas fa-home text-4xl text-blue-600 mb-2"></i>
+                                        <span class="text-sm text-center">探亲访友</span>
+                                    </div>
+                                    
+                                    <!-- 家政维修 -->
+                                    <div @click="confirmVisitorType('家政维修')" 
+                                         class="flex flex-col items-center p-4 border-2 rounded-lg cursor-pointer transition-all hover:border-blue-500 hover:bg-blue-50 active:scale-95"
+                                         :class="selectedVisitorType === '家政维修' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'">
+                                        <i class="fas fa-tools text-4xl text-green-600 mb-2"></i>
+                                        <span class="text-sm text-center">家政维修</span>
+                                    </div>
+                                    
+                                    <!-- 房屋中介 -->
+                                    <div @click="confirmVisitorType('房屋中介')" 
+                                         class="flex flex-col items-center p-4 border-2 rounded-lg cursor-pointer transition-all hover:border-blue-500 hover:bg-blue-50 active:scale-95"
+                                         :class="selectedVisitorType === '房屋中介' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'">
+                                        <i class="fas fa-building text-4xl text-purple-600 mb-2"></i>
+                                        <span class="text-sm text-center">房屋中介</span>
+                                    </div>
+                                    
+                                    <!-- 外卖 -->
+                                    <div @click="confirmVisitorType('外卖')" 
+                                         class="flex flex-col items-center p-4 border-2 rounded-lg cursor-pointer transition-all hover:border-blue-500 hover:bg-blue-50 active:scale-95"
+                                         :class="selectedVisitorType === '外卖' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'">
+                                        <i class="fas fa-utensils text-4xl text-orange-600 mb-2"></i>
+                                        <span class="text-sm text-center">外卖</span>
+                                    </div>
+                                    
+                                    <!-- 快递 -->
+                                    <div @click="confirmVisitorType('快递')" 
+                                         class="flex flex-col items-center p-4 border-2 rounded-lg cursor-pointer transition-all hover:border-blue-500 hover:bg-blue-50 active:scale-95"
+                                         :class="selectedVisitorType === '快递' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'">
+                                        <i class="fas fa-box text-4xl text-red-600 mb-2"></i>
+                                        <span class="text-sm text-center">快递</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                
+                <!-- ========================================
+                     访客登记页
+                     ======================================== -->
+                <template x-if="currentPage === 'register'">
+                    <div class="p-4">
+                        <!-- 拜访信息 -->
+                        <div class="mb-6">
+                            <h3 class="text-sm text-gray-500 mb-3 px-2">拜访信息</h3>
+                            <div class="bg-white rounded-lg overflow-hidden">
+                                <!-- 访客类型 -->
+                                <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 active:bg-gray-100"
+                                     @click="showVisitorTypeModal = true">
+                                    <label class="text-sm text-gray-700">
+                                        <span class="text-red-500">*</span> 访客类型
+                                    </label>
+                                    <div class="flex items-center text-sm text-gray-900">
+                                        <span x-text="formData.visitorType"></span>
+                                        <i class="fas fa-chevron-down ml-2 text-gray-400"></i>
+                                    </div>
+                                </div>
+                                
+                                <!-- 房号选择 (仅探亲访友/家政维修/房屋中介显示) -->
+                                <template x-if="['探亲访友', '家政维修', '房屋中介'].includes(formData.visitorType)">
+                                    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 active:bg-gray-100"
+                                         @click="showRoomPicker = true">
+                                        <label class="text-sm text-gray-700">
+                                            <span class="text-red-500">*</span> 房号
+                                        </label>
+                                        <div class="flex items-center text-sm text-gray-900">
+                                            <span x-text="formData.roomNumber || '请选择房号'"></span>
+                                            <i class="fas fa-chevron-down ml-2 text-gray-400"></i>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                        
+                        <!-- 个人信息 -->
+                        <div class="mb-6">
+                            <h3 class="text-sm text-gray-500 mb-3 px-2">个人信息</h3>
+                            <div class="bg-white rounded-lg overflow-hidden">
+                                <!-- 姓名 -->
+                                <div class="px-4 py-3 border-b border-gray-100">
+                                    <label class="text-sm text-gray-700 block mb-2">
+                                        <span class="text-red-500">*</span> 姓名
+                                    </label>
+                                    <input type="text" 
+                                           x-model="formData.visitorName" 
+                                           placeholder="请输入姓名"
+                                           class="input-field border-none px-0">
+                                </div>
+                                
+                                <!-- 手机号 (登录时已获取) -->
+                                <div class="px-4 py-3">
+                                    <label class="text-sm text-gray-700 block mb-2">手机号</label>
+                                    <div class="text-sm text-gray-900" x-text="formData.visitorPhone"></div>
+                                    <div class="text-xs text-gray-400 mt-1">登录时已自动获取</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 提交按钮 -->
+                        <button @click="submitRegistration()" 
+                                class="w-full btn-primary"
+                                :disabled="!isFormValid()">
+                            <span x-show="!isSubmitting">生成通行码</span>
+                            <span x-show="isSubmitting" class="flex items-center justify-center">
+                                <i class="fas fa-spinner fa-spin mr-2"></i>
+                                提交中...
+                            </span>
+                        </button>
+                    </div>
+                </template>
+                
+                <!-- ========================================
+                     通行码页面
+                     ======================================== -->
+                <template x-if="currentPage === 'qrcode'">
+                    <div class="p-4">
+                        <!-- 状态提示 -->
+                        <div class="text-center mb-6">
+                            <div class="inline-flex items-center px-4 py-2 rounded-full"
+                                 :class="{
+                                     'bg-yellow-100 text-yellow-800': qrCodeStatus === 'pending',
+                                     'bg-green-100 text-green-800': qrCodeStatus === 'approved',
+                                     'bg-red-100 text-red-800': qrCodeStatus === 'rejected'
+                                 }">
+                                <i class="fas mr-2"
+                                   :class="{
+                                       'fa-clock': qrCodeStatus === 'pending',
+                                       'fa-check-circle': qrCodeStatus === 'approved',
+                                       'fa-times-circle': qrCodeStatus === 'rejected'
+                                   }"></i>
+                                <span x-text="qrCodeStatusText"></span>
+                            </div>
+                        </div>
+                        
+                        <!-- 二维码区域 -->
+                        <div class="bg-white rounded-lg p-6 shadow-sm mb-6">
+                            <div class="flex justify-center mb-4">
+                                <div class="relative">
+                                    <canvas id="qrcode-canvas" width="200" height="200"></canvas>
+                                    <div x-show="qrCodeStatus === 'rejected'" 
+                                         class="absolute inset-0 bg-gray-200 bg-opacity-90 flex items-center justify-center rounded">
+                                        <i class="fas fa-times-circle text-6xl text-red-500"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 动态时间 -->
+                            <div class="text-center">
+                                <div class="text-sm text-gray-500">当前时间</div>
+                                <div class="text-lg font-semibold text-gray-900" x-text="currentTime"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- 访客信息 -->
+                        <div class="bg-white rounded-lg p-4 shadow-sm mb-6">
+                            <div class="flex justify-between py-2">
+                                <span class="text-sm text-gray-500">访客姓名</span>
+                                <span class="text-sm text-gray-900" x-text="formData.visitorName"></span>
+                            </div>
+                            <div class="flex justify-between py-2">
+                                <span class="text-sm text-gray-500">访客手机</span>
+                                <span class="text-sm text-gray-900" x-text="formData.visitorPhone"></span>
+                            </div>
+                        </div>
+                        
+                        <!-- 修改信息按钮 -->
+                        <template x-if="qrCodeStatus !== 'approved'">
+                            <button @click="editInfo()" class="w-full btn-outline">
+                                修改信息
+                            </button>
+                        </template>
+                    </div>
+                </template>
+                
+                <!-- ========================================
+                     业主审核页
+                     ======================================== -->
+                <template x-if="currentPage === 'owner-review'">
+                    <div class="p-4">
+                        <!-- 访客信息 -->
+                        <div class="mb-6">
+                            <h3 class="text-sm text-gray-500 mb-3 px-2">访客信息</h3>
+                            <div class="bg-white rounded-lg p-4 shadow-sm">
+                                <div class="flex justify-between py-2">
+                                    <span class="text-sm text-gray-500">访客姓名</span>
+                                    <span class="text-sm text-gray-900" x-text="reviewData.visitorName"></span>
+                                </div>
+                                <div class="flex justify-between py-2">
+                                    <span class="text-sm text-gray-500">访客手机</span>
+                                    <span class="text-sm text-gray-900" x-text="reviewData.visitorPhone"></span>
+                                </div>
+                                <div class="flex justify-between py-2">
+                                    <span class="text-sm text-gray-500">访客类型</span>
+                                    <span class="text-sm text-gray-900" x-text="reviewData.visitorType"></span>
+                                </div>
+                                <div class="flex justify-between py-2">
+                                    <span class="text-sm text-gray-500">来访时间</span>
+                                    <span class="text-sm text-gray-900" x-text="reviewData.visitTime"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 被访信息 -->
+                        <div class="mb-6">
+                            <h3 class="text-sm text-gray-500 mb-3 px-2">被访信息</h3>
+                            <div class="bg-white rounded-lg p-4 shadow-sm">
+                                <div class="flex justify-between py-2">
+                                    <span class="text-sm text-gray-500">被访房号</span>
+                                    <span class="text-sm text-gray-900" x-text="reviewData.roomNumber"></span>
+                                </div>
+                                <div class="flex justify-between py-2">
+                                    <span class="text-sm text-gray-500">被访人姓名</span>
+                                    <span class="text-sm text-gray-900" x-text="reviewData.visitedPersonName"></span>
+                                </div>
+                                <div class="flex justify-between py-2">
+                                    <span class="text-sm text-gray-500">被访人手机</span>
+                                    <span class="text-sm text-gray-900" x-text="reviewData.visitedPersonPhone"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 审核按钮 -->
+                        <div class="space-y-3">
+                            <button @click="approveVisitor()" class="w-full btn-success">
+                                通过
+                            </button>
+                            <button @click="rejectVisitor()" class="w-full btn-danger">
+                                不通过
+                            </button>
+                        </div>
+                    </div>
+                </template>
+                
+                <!-- ========================================
+                     访客类型选择弹窗 (register页面使用)
+                     ======================================== -->
+                <div x-show="showVisitorTypeModal && currentPage === 'register'" 
+                     class="absolute inset-0 z-50"
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition ease-in duration-200"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0">
+                    <!-- 背景遮罩 -->
+                    <div class="absolute inset-0 bg-black bg-opacity-50" @click="showVisitorTypeModal = false"></div>
+                    
+                    <!-- 弹窗内容 -->
+                    <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl animate-slideUp">
+                        <div class="p-6">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="text-lg font-semibold">请选择访客类型</h3>
+                                <button @click="showVisitorTypeModal = false" class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-times text-xl"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="grid grid-cols-3 gap-4">
+                                <!-- 探亲访友 -->
+                                <div @click="selectVisitorTypeFromModal('探亲访友')" 
+                                     class="flex flex-col items-center p-4 border-2 rounded-lg cursor-pointer transition-all hover:border-blue-500 hover:bg-blue-50 active:scale-95"
+                                     :class="formData.visitorType === '探亲访友' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'">
+                                    <i class="fas fa-home text-4xl text-blue-600 mb-2"></i>
+                                    <span class="text-sm text-center">探亲访友</span>
+                                </div>
+                                
+                                <!-- 家政维修 -->
+                                <div @click="selectVisitorTypeFromModal('家政维修')" 
+                                     class="flex flex-col items-center p-4 border-2 rounded-lg cursor-pointer transition-all hover:border-blue-500 hover:bg-blue-50 active:scale-95"
+                                     :class="formData.visitorType === '家政维修' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'">
+                                    <i class="fas fa-tools text-4xl text-green-600 mb-2"></i>
+                                    <span class="text-sm text-center">家政维修</span>
+                                </div>
+                                
+                                <!-- 房屋中介 -->
+                                <div @click="selectVisitorTypeFromModal('房屋中介')" 
+                                     class="flex flex-col items-center p-4 border-2 rounded-lg cursor-pointer transition-all hover:border-blue-500 hover:bg-blue-50 active:scale-95"
+                                     :class="formData.visitorType === '房屋中介' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'">
+                                    <i class="fas fa-building text-4xl text-purple-600 mb-2"></i>
+                                    <span class="text-sm text-center">房屋中介</span>
+                                </div>
+                                
+                                <!-- 外卖 -->
+                                <div @click="selectVisitorTypeFromModal('外卖')" 
+                                     class="flex flex-col items-center p-4 border-2 rounded-lg cursor-pointer transition-all hover:border-blue-500 hover:bg-blue-50 active:scale-95"
+                                     :class="formData.visitorType === '外卖' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'">
+                                    <i class="fas fa-utensils text-4xl text-orange-600 mb-2"></i>
+                                    <span class="text-sm text-center">外卖</span>
+                                </div>
+                                
+                                <!-- 快递 -->
+                                <div @click="selectVisitorTypeFromModal('快递')" 
+                                     class="flex flex-col items-center p-4 border-2 rounded-lg cursor-pointer transition-all hover:border-blue-500 hover:bg-blue-50 active:scale-95"
+                                     :class="formData.visitorType === '快递' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'">
+                                    <i class="fas fa-box text-4xl text-red-600 mb-2"></i>
+                                    <span class="text-sm text-center">快递</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ========================================
+                     房号级联选择器
+                     ======================================== -->
+                <div x-show="showRoomPicker" 
+                     class="absolute inset-0 z-50"
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition ease-in duration-200"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0">
+                    <!-- 背景遮罩 -->
+                    <div class="absolute inset-0 bg-black bg-opacity-50" @click="showRoomPicker = false"></div>
+                    
+                    <!-- 弹窗内容 -->
+                    <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl animate-slideUp">
+                        <div class="p-6">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="text-lg font-semibold">选择房号</h3>
+                                <button @click="showRoomPicker = false" class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-times text-xl"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- 级联选择器 -->
+                            <div class="space-y-4">
+                                <!-- 组团选择 -->
+                                <div>
+                                    <label class="text-sm text-gray-500 mb-2 block">组团</label>
+                                    <div class="flex flex-wrap gap-2">
+                                        <template x-for="group in roomData.groups" :key="group">
+                                            <button @click="selectGroup(group)"
+                                                    :class="selectedRoom.group === group ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'"
+                                                    class="px-4 py-2 rounded-lg text-sm font-medium transition-all">
+                                                <span x-text="group"></span>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
+                                
+                                <!-- 楼栋选择 -->
+                                <div x-show="selectedRoom.group">
+                                    <label class="text-sm text-gray-500 mb-2 block">楼栋</label>
+                                    <div class="flex flex-wrap gap-2">
+                                        <template x-for="building in roomData.buildings" :key="building">
+                                            <button @click="selectBuilding(building)"
+                                                    :class="selectedRoom.building === building ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'"
+                                                    class="px-4 py-2 rounded-lg text-sm font-medium transition-all">
+                                                <span x-text="building"></span>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
+                                
+                                <!-- 单元选择 -->
+                                <div x-show="selectedRoom.building">
+                                    <label class="text-sm text-gray-500 mb-2 block">单元</label>
+                                    <div class="flex flex-wrap gap-2">
+                                        <template x-for="unit in roomData.units" :key="unit">
+                                            <button @click="selectUnit(unit)"
+                                                    :class="selectedRoom.unit === unit ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'"
+                                                    class="px-4 py-2 rounded-lg text-sm font-medium transition-all">
+                                                <span x-text="unit"></span>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
+                                
+                                <!-- 房号选择 -->
+                                <div x-show="selectedRoom.unit">
+                                    <label class="text-sm text-gray-500 mb-2 block">房号</label>
+                                    <div class="grid grid-cols-4 gap-2">
+                                        <template x-for="room in roomData.rooms" :key="room">
+                                            <button @click="selectRoom(room)"
+                                                    :class="selectedRoom.room === room ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'"
+                                                    class="px-3 py-2 rounded-lg text-sm font-medium transition-all">
+                                                <span x-text="room"></span>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 确认按钮 -->
+                            <button @click="confirmRoomSelection()" 
+                                    class="w-full mt-6 btn-primary"
+                                    :disabled="!selectedRoom.room">
+                                确认选择
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </template>
+    
+    <!-- ========================================
+         企微端页面
+         ======================================== -->
+    
+    <template x-if="currentPlatform === 'work'">
+        <div class="work-container">
+            
+            <!-- 企微导航栏 -->
+            <div class="miniprogram-header">
+                <button x-show="currentPage !== 'record-list'" @click="goBack()" class="absolute left-4">
+                    <i class="fas fa-arrow-left text-gray-600"></i>
+                </button>
+                <span class="text-base font-medium" x-text="getPageTitle()"></span>
+            </div>
+            
+            <!-- 企微内容区 -->
+            <div class="miniprogram-content">
+                
+                <!-- ========================================
+                     来访记录列表页
+                     ======================================== -->
+                <template x-if="currentPage === 'record-list'">
+                    <div>
+                        <!-- 筛选标签 -->
+                        <div class="bg-white px-4 py-3 flex gap-3 border-b border-gray-100">
+                            <button @click="filterStatus = 'all'"
+                                    :class="filterStatus === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'"
+                                    class="px-4 py-2 rounded-full text-sm font-medium transition-all">
+                                全部
+                            </button>
+                            <button @click="filterStatus = 'pending'"
+                                    :class="filterStatus === 'pending' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'"
+                                    class="px-4 py-2 rounded-full text-sm font-medium transition-all">
+                                待放行
+                            </button>
+                        </div>
+                        
+                        <!-- 记录列表 -->
+                        <div class="p-4 space-y-3">
+                            <template x-for="record in filteredRecords" :key="record.id">
+                                <div class="bg-white rounded-lg p-4 shadow-sm" @click="viewRecordDetail(record)">
+                                    <!-- 状态徽章 -->
+                                    <div class="flex items-center justify-between mb-3">
+                                        <span class="text-xs font-medium px-2 py-1 rounded"
+                                              :class="{
+                                                  'badge-pending': record.status === 'pending',
+                                                  'badge-success': record.status === 'approved',
+                                                  'badge-danger': record.status === 'rejected'
+                                              }"
+                                              x-text="record.statusText"></span>
+                                        <span class="text-xs text-gray-400" x-text="record.visitTime"></span>
+                                    </div>
+                                    
+                                    <!-- 访客信息 -->
+                                    <div class="space-y-2">
+                                        <div class="flex justify-between text-sm">
+                                            <span class="text-gray-500">访客类型</span>
+                                            <span class="text-gray-900" x-text="record.visitorType"></span>
+                                        </div>
+                                        <div class="flex justify-between text-sm">
+                                            <span class="text-gray-500">访客姓名</span>
+                                            <span class="text-gray-900" x-text="record.visitorName"></span>
+                                        </div>
+                                        <div class="flex justify-between text-sm">
+                                            <span class="text-gray-500">访客电话</span>
+                                            <span class="text-gray-900" x-text="record.visitorPhone"></span>
+                                        </div>
+                                        <div class="flex justify-between text-sm">
+                                            <span class="text-gray-500">拜访房号</span>
+                                            <span class="text-gray-900" x-text="record.roomNumber"></span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 操作按钮 (仅待审核状态显示) -->
+                                    <template x-if="record.status === 'pending'">
+                                        <div class="flex gap-3 mt-4 pt-4 border-t border-gray-100">
+                                            <button @click.stop="approveRecord(record)" class="flex-1 btn-success text-sm py-2">
+                                                同意放行
+                                            </button>
+                                            <button @click.stop="rejectRecord(record)" class="flex-1 btn-danger text-sm py-2">
+                                                拒绝放行
+                                            </button>
+                                        </div>
+                                    </template>
+                                    
+                                    <!-- 审核信息 (已审核状态显示) -->
+                                    <template x-if="record.status !== 'pending'">
+                                        <div class="mt-4 pt-4 border-t border-gray-100">
+                                            <div class="flex justify-between text-sm">
+                                                <span class="text-gray-500">操作人</span>
+                                                <span class="text-gray-900" x-text="record.reviewerName"></span>
+                                            </div>
+                                            <div class="flex justify-between text-sm mt-2">
+                                                <span class="text-gray-500">操作时间</span>
+                                                <span class="text-gray-900" x-text="record.reviewTime"></span>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+                
+                <!-- ========================================
+                     访客详情页
+                     ======================================== -->
+                <template x-if="currentPage === 'record-detail'">
+                    <div class="p-4">
+                        <!-- 访客信息 -->
+                        <div class="mb-6">
+                            <h3 class="text-sm text-gray-500 mb-3 px-2">访客信息</h3>
+                            <div class="bg-white rounded-lg p-4 shadow-sm">
+                                <div class="flex justify-between py-2">
+                                    <span class="text-sm text-gray-500">访客姓名</span>
+                                    <span class="text-sm text-gray-900" x-text="currentRecord.visitorName"></span>
+                                </div>
+                                <div class="flex justify-between py-2">
+                                    <span class="text-sm text-gray-500">访客手机</span>
+                                    <span class="text-sm text-gray-900" x-text="currentRecord.visitorPhone"></span>
+                                </div>
+                                <div class="flex justify-between py-2">
+                                    <span class="text-sm text-gray-500">访客类型</span>
+                                    <span class="text-sm text-gray-900" x-text="currentRecord.visitorType"></span>
+                                </div>
+                                <div class="flex justify-between py-2">
+                                    <span class="text-sm text-gray-500">来访时间</span>
+                                    <span class="text-sm text-gray-900" x-text="currentRecord.visitTime"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 被访信息 -->
+                        <div class="mb-6">
+                            <h3 class="text-sm text-gray-500 mb-3 px-2">被访信息</h3>
+                            <div class="bg-white rounded-lg p-4 shadow-sm">
+                                <div class="flex justify-between py-2">
+                                    <span class="text-sm text-gray-500">被访房号</span>
+                                    <span class="text-sm text-gray-900" x-text="currentRecord.roomNumber"></span>
+                                </div>
+                                <div class="flex justify-between py-2">
+                                    <span class="text-sm text-gray-500">被访人姓名</span>
+                                    <span class="text-sm text-gray-900" x-text="currentRecord.visitedPersonName"></span>
+                                </div>
+                                <div class="flex justify-between py-2">
+                                    <span class="text-sm text-gray-500">被访人手机</span>
+                                    <span class="text-sm text-gray-900" x-text="currentRecord.visitedPersonPhone"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 审核信息 (已审核状态显示) -->
+                        <template x-if="currentRecord.status !== 'pending'">
+                            <div class="mb-6">
+                                <h3 class="text-sm text-gray-500 mb-3 px-2">审核信息</h3>
+                                <div class="bg-white rounded-lg p-4 shadow-sm">
+                                    <div class="flex justify-between py-2">
+                                        <span class="text-sm text-gray-500">审核人</span>
+                                        <span class="text-sm text-gray-900" x-text="currentRecord.reviewerName"></span>
+                                    </div>
+                                    <div class="flex justify-between py-2">
+                                        <span class="text-sm text-gray-500">审核时间</span>
+                                        <span class="text-sm text-gray-900" x-text="currentRecord.reviewTime"></span>
+                                    </div>
+                                    <template x-if="currentRecord.reviewRemark">
+                                        <div class="flex justify-between py-2">
+                                            <span class="text-sm text-gray-500">审核备注</span>
+                                            <span class="text-sm text-gray-900" x-text="currentRecord.reviewRemark"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                        
+                        <!-- 操作按钮 (仅待审核状态显示) -->
+                        <template x-if="currentRecord.status === 'pending'">
+                            <div class="space-y-3">
+                                <button @click="approveRecord(currentRecord)" class="w-full btn-success">
+                                    同意放行
+                                </button>
+                                <button @click="rejectRecord(currentRecord)" class="w-full btn-danger">
+                                    拒绝放行
+                                </button>
+                                <button @click="forwardToOwner()" class="w-full btn-outline">
+                                    转发业主审核
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+                
+            </div>
+        </div>
+    </template>
+    
+    <!-- ========================================
+         PC管理端页面
+         ======================================== -->
+    
+    <template x-if="currentPlatform === 'pc'">
+        <div class="pc-container">
+            
+            <!-- 侧边栏 -->
+            <div class="pc-sidebar">
+                <div class="p-6 border-b border-gray-100">
+                    <div class="flex items-center">
+                        <i class="fas fa-building text-blue-600 text-2xl mr-3"></i>
+                        <div>
+                            <div class="font-semibold text-gray-900">物业集团</div>
+                            <div class="text-xs text-gray-500">云平台</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <nav class="p-4">
+                    <div class="space-y-2">
+                        <a @click="currentPage = 'qrcode-manage'"
+                           :class="currentPage === 'qrcode-manage' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'"
+                           class="flex items-center px-4 py-3 rounded-lg cursor-pointer transition-all">
+                            <i class="fas fa-qrcode mr-3"></i>
+                            <span>项目二维码管理</span>
+                        </a>
+                        <a @click="currentPage = 'statistics'"
+                           :class="currentPage === 'statistics' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'"
+                           class="flex items-center px-4 py-3 rounded-lg cursor-pointer transition-all">
+                            <i class="fas fa-chart-bar mr-3"></i>
+                            <span>访客统计</span>
+                        </a>
+                    </div>
+                </nav>
+            </div>
+            
+            <!-- 顶部导航栏 -->
+            <div class="pc-header flex items-center justify-between px-6">
+                <div class="flex items-center text-sm">
+                    <span class="text-gray-500">首页</span>
+                    <i class="fas fa-chevron-right text-gray-400 mx-2 text-xs"></i>
+                    <span class="text-gray-900" x-text="getPageTitle()"></span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-bell text-xl"></i>
+                    </button>
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm">
+                            管
+                        </div>
+                        <span class="ml-2 text-sm text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 主内容区 -->
+            <div class="pc-main">
+                
+                <!-- ========================================
+                     项目二维码管理页
+                     ======================================== -->
+                <template x-if="currentPage === 'qrcode-manage'">
+                    <div>
+                        <h1 class="text-2xl font-semibold text-gray-900 mb-6">项目二维码管理</h1>
+                        
+                        <!-- 筛选表单 -->
+                        <div class="bg-white rounded-lg p-6 shadow-sm mb-6">
+                            <div class="grid grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">项目筛选</label>
+                                    <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        <option>全部项目</option>
+                                        <option>项目A</option>
+                                        <option>项目B</option>
+                                        <option>项目C</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">地区筛选</label>
+                                    <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        <option>全部地区</option>
+                                        <option>北京</option>
+                                        <option>上海</option>
+                                        <option>广州</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-end gap-3">
+                                    <button class="btn-primary">查询</button>
+                                    <button class="btn-outline">重置</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 数据表格 -->
+                        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">项目名称</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">地区</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">创建时间</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <template x-for="project in projects" :key="project.id">
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="project.name"></td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="project.region"></td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="px-2 py-1 text-xs font-medium rounded"
+                                                      :class="project.status === 'enabled' ? 'badge-success' : 'badge-danger'"
+                                                      x-text="project.status === 'enabled' ? '已启用' : '已禁用'"></span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="project.createTime"></td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                                <button @click="viewQRCode(project)" class="text-blue-600 hover:text-blue-800 mr-3">查看</button>
+                                                <button @click="downloadQRCode(project)" class="text-blue-600 hover:text-blue-800 mr-3">下载</button>
+                                                <button @click="toggleProjectStatus(project)" 
+                                                        class="hover:underline"
+                                                        :class="project.status === 'enabled' ? 'text-red-600 hover:text-red-800' : 'text-green-600 hover:text-green-800'"
+                                                        x-text="project.status === 'enabled' ? '禁用' : '启用'"></button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                            
+                            <!-- 分页 -->
+                            <div class="bg-white px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                                <div class="text-sm text-gray-500">
+                                    共 <span class="font-medium" x-text="projects.length"></span> 条记录
+                                </div>
+                                <div class="flex gap-2">
+                                    <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">上一页</button>
+                                    <button class="px-3 py-1 bg-blue-600 text-white rounded text-sm">1</button>
+                                    <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">2</button>
+                                    <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">3</button>
+                                    <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">下一页</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                
+                <!-- ========================================
+                     访客统计页
+                     ======================================== -->
+                <template x-if="currentPage === 'statistics'">
+                    <div>
+                        <h1 class="text-2xl font-semibold text-gray-900 mb-6">访客统计</h1>
+                        
+                        <!-- 筛选表单 -->
+                        <div class="bg-white rounded-lg p-6 shadow-sm mb-6">
+                            <div class="grid grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">日期范围</label>
+                                    <input type="date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">项目筛选</label>
+                                    <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        <option>全部项目</option>
+                                        <option>项目A</option>
+                                        <option>项目B</option>
+                                        <option>项目C</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-end gap-3">
+                                    <button class="btn-primary">查询</button>
+                                    <button class="btn-outline">导出</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 统计卡片 -->
+                        <div class="grid grid-cols-3 gap-6 mb-6">
+                            <div class="bg-white rounded-lg p-6 shadow-sm">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="text-sm text-gray-500 mb-1">访客总数</div>
+                                        <div class="text-3xl font-semibold text-gray-900">1,234</div>
+                                    </div>
+                                    <div class="text-green-600 text-sm flex items-center">
+                                        <i class="fas fa-arrow-up mr-1"></i>
+                                        <span>12%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white rounded-lg p-6 shadow-sm">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="text-sm text-gray-500 mb-1">审核通过</div>
+                                        <div class="text-3xl font-semibold text-gray-900">1,000</div>
+                                    </div>
+                                    <div class="text-green-600 text-sm flex items-center">
+                                        <i class="fas fa-arrow-up mr-1"></i>
+                                        <span>8%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white rounded-lg p-6 shadow-sm">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="text-sm text-gray-500 mb-1">审核拒绝</div>
+                                        <div class="text-3xl font-semibold text-gray-900">234</div>
+                                    </div>
+                                    <div class="text-red-600 text-sm flex items-center">
+                                        <i class="fas fa-arrow-down mr-1"></i>
+                                        <span>5%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 图表区域 -->
+                        <div class="grid grid-cols-2 gap-6 mb-6">
+                            <!-- 访客类型占比 -->
+                            <div class="bg-white rounded-lg p-6 shadow-sm">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">访客类型占比</h3>
+                                <div style="height: 300px;">
+                                    <canvas id="visitor-type-chart"></canvas>
+                                </div>
+                            </div>
+                            
+                            <!-- 访客趋势图 -->
+                            <div class="bg-white rounded-lg p-6 shadow-sm">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">访客趋势图</h3>
+                                <div style="height: 300px;">
+                                    <canvas id="visitor-trend-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 历史记录表格 -->
+                        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                            <div class="px-6 py-4 border-b border-gray-200">
+                                <h3 class="text-lg font-semibold text-gray-900">历史记录</h3>
+                            </div>
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">访客类型</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">访客姓名</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">访客电话</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作时间</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <template x-for="record in statisticsRecords" :key="record.id">
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="record.visitorType"></td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="record.visitorName"></td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="record.visitorPhone"></td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="px-2 py-1 text-xs font-medium rounded"
+                                                      :class="{
+                                                          'badge-pending': record.status === 'pending',
+                                                          'badge-success': record.status === 'approved',
+                                                          'badge-danger': record.status === 'rejected'
+                                                      }"
+                                                      x-text="record.statusText"></span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="record.operationTime"></td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </template>
+                
+            </div>
+        </div>
+    </template>
+    
+    <!-- ========================================
+         模态框和对话框
+         ======================================== -->
+    
+    <!-- 确认对话框 -->
+    <div x-show="showConfirmDialog" 
+         class="fixed inset-0 z-50 flex items-center justify-center"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
+        <div class="absolute inset-0 bg-black bg-opacity-50" @click="showConfirmDialog = false"></div>
+        <div class="relative bg-white rounded-lg p-6 max-w-sm w-full mx-4 animate-fadeIn">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4" x-text="confirmDialogTitle"></h3>
+            <p class="text-sm text-gray-600 mb-6" x-text="confirmDialogMessage"></p>
+            <div class="flex gap-3">
+                <button @click="showConfirmDialog = false" class="flex-1 btn-outline">取消</button>
+                <button @click="confirmAction()" class="flex-1 btn-primary">确认</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast提示 -->
+    <div x-show="showToast" 
+         class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-lg shadow-lg"
+         :class="{
+             'bg-green-500 text-white': toastType === 'success',
+             'bg-red-500 text-white': toastType === 'error',
+             'bg-yellow-500 text-white': toastType === 'warning'
+         }"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 transform -translate-y-2"
+         x-transition:enter-end="opacity-100 transform translate-y-0"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 transform translate-y-0"
+         x-transition:leave-end="opacity-0 transform -translate-y-2">
+        <span x-text="toastMessage"></span>
+    </div>
+    
+    <!-- ========================================
+         JavaScript逻辑
+         ======================================== -->
+    
+    <script>
+        function app() {
+            return {
+                // ========================================
+                // 全局状态
+                // ========================================
+                
+                currentPlatform: 'miniprogram', // miniprogram, work, pc
+                currentPage: 'landing',
+                isProduction: false,
+                
+                // ========================================
+                // 小程序端状态
+                // ========================================
+                
+                showVisitorTypeModal: true,
+                selectedVisitorType: '',
+                showRoomPicker: false,
+                isSubmitting: false,
+                
+                formData: {
+                    visitorType: '探亲访友',
+                    roomNumber: '',
+                    visitorName: '',
+                    visitorPhone: '133 3333 3333',
+                    visitedPersonName: '',
+                    visitedPersonPhone: ''
+                },
+                
+                // 房号级联选择器数据
+                roomData: {
+                    groups: ['A组团', 'B组团', 'C组团'],
+                    buildings: ['1栋', '2栋', '3栋', '4栋', '5栋'],
+                    units: ['1单元', '2单元', '3单元'],
+                    rooms: ['101', '102', '201', '202', '301', '302', '401', '402', '501', '502', '601', '602']
+                },
+                
+                selectedRoom: {
+                    group: '',
+                    building: '',
+                    unit: '',
+                    room: ''
+                },
+                
+                qrCodeStatus: 'pending', // pending, approved, rejected
+                currentTime: '',
+                
+                get qrCodeStatusText() {
+                    const statusTexts = {
+                        'pending': '通行码待门岗审核',
+                        'approved': '通行码已生成',
+                        'rejected': '审核未通过'
+                    };
+                    return statusTexts[this.qrCodeStatus] || '';
+                },
+                
+                reviewData: {
+                    visitorName: '张三',
+                    visitorPhone: '133 3333 3333',
+                    visitorType: '探亲访友',
+                    visitTime: '2026-03-26 18:26:52',
+                    roomNumber: '1栋1单元101',
+                    visitedPersonName: '李四',
+                    visitedPersonPhone: '188 8888 8888'
+                },
+                
+                // ========================================
+                // 企微端状态
+                // ========================================
+                
+                filterStatus: 'all',
+                
+                records: [
+                    {
+                        id: 1,
+                        visitorType: '房屋中介',
+                        visitorName: '狗蛋',
+                        visitorPhone: '133 3333 3333',
+                        roomNumber: '1栋1单元101',
+                        visitedPersonName: '李四',
+                        visitedPersonPhone: '188 8888 8888',
+                        visitTime: '2025-03-31 18:26:52',
+                        status: 'pending',
+                        statusText: '待放行',
+                        reviewerName: '',
+                        reviewTime: '',
+                        reviewRemark: ''
+                    },
+                    {
+                        id: 2,
+                        visitorType: '房屋中介',
+                        visitorName: '狗蛋',
+                        visitorPhone: '133 3333 3333',
+                        roomNumber: '1栋1单元101',
+                        visitedPersonName: '李四',
+                        visitedPersonPhone: '188 8888 8888',
+                        visitTime: '2025-03-31 18:26:52',
+                        status: 'approved',
+                        statusText: '已放行',
+                        reviewerName: '张三',
+                        reviewTime: '2025-03-31 18:29:18',
+                        reviewRemark: ''
+                    },
+                    {
+                        id: 3,
+                        visitorType: '外卖',
+                        visitorName: '狗蛋',
+                        visitorPhone: '133 3333 3333',
+                        roomNumber: '-',
+                        visitedPersonName: '-',
+                        visitedPersonPhone: '-',
+                        visitTime: '2025-03-31 18:26:52',
+                        status: 'rejected',
+                        statusText: '已拒绝',
+                        reviewerName: '张三',
+                        reviewTime: '2025-03-31 18:29:18',
+                        reviewRemark: '信息不实'
+                    }
+                ],
+                
+                currentRecord: {},
+                
+                // ========================================
+                // PC管理端状态
+                // ========================================
+                
+                projects: [
+                    {
+                        id: 1,
+                        name: '项目A',
+                        region: '北京',
+                        status: 'enabled',
+                        createTime: '2026-03-01 10:00:00'
+                    },
+                    {
+                        id: 2,
+                        name: '项目B',
+                        region: '上海',
+                        status: 'disabled',
+                        createTime: '2026-03-02 14:30:00'
+                    },
+                    {
+                        id: 3,
+                        name: '项目C',
+                        region: '广州',
+                        status: 'enabled',
+                        createTime: '2026-03-03 09:15:00'
+                    }
+                ],
+                
+                statisticsRecords: [
+                    {
+                        id: 1,
+                        visitorType: '房屋中介',
+                        visitorName: '狗蛋',
+                        visitorPhone: '133****3333',
+                        status: 'approved',
+                        statusText: '已通过',
+                        operationTime: '2025-03-31 18:29:18'
+                    },
+                    {
+                        id: 2,
+                        visitorType: '外卖',
+                        visitorName: '张三',
+                        visitorPhone: '188****8888',
+                        status: 'rejected',
+                        statusText: '不通过',
+                        operationTime: '2025-03-31 18:30:25'
+                    }
+                ],
+                
+                // ========================================
+                // 对话框状态
+                // ========================================
+                
+                showConfirmDialog: false,
+                confirmDialogTitle: '',
+                confirmDialogMessage: '',
+                confirmCallback: null,
+                
+                showToast: false,
+                toastMessage: '',
+                toastType: 'success',
+                
+                // ========================================
+                // 初始化
+                // ========================================
+                
+                init() {
+                    this.updateCurrentTime();
+                    setInterval(() => this.updateCurrentTime(), 1000);
+                    
+                    // 初始化图表
+                    this.$nextTick(() => {
+                        if (this.currentPlatform === 'pc' && this.currentPage === 'statistics') {
+                            this.initCharts();
+                        }
+                    });
+                    
+                    // 监听页面变化
+                    this.$watch('currentPage', (value) => {
+                        if (this.currentPlatform === 'pc' && value === 'statistics') {
+                            this.$nextTick(() => {
+                                this.initCharts();
+                            });
+                        }
+                    });
+                    
+                    // 监听平台变化
+                    this.$watch('currentPlatform', (value) => {
+                        if (value === 'miniprogram') {
+                            this.currentPage = 'landing';
+                        } else if (value === 'work') {
+                            this.currentPage = 'record-list';
+                        } else if (value === 'pc') {
+                            this.currentPage = 'qrcode-manage';
+                        }
+                    });
+                },
+                
+                // ========================================
+                // 工具方法
+                // ========================================
+                
+                updateCurrentTime() {
+                    const now = new Date();
+                    const year = now.getFullYear();
+                    const month = String(now.getMonth() + 1).padStart(2, '0');
+                    const day = String(now.getDate()).padStart(2, '0');
+                    const hours = String(now.getHours()).padStart(2, '0');
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    const seconds = String(now.getSeconds()).padStart(2, '0');
+                    this.currentTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+                },
+                
+                getPageTitle() {
+                    const titles = {
+                        // 小程序端
+                        'landing': '到访信息快速登记',
+                        'register': '到访信息快速登记',
+                        'qrcode': '通行二维码',
+                        'owner-review': '访客审核',
+                        
+                        // 企微端
+                        'record-list': '来访记录',
+                        'record-detail': '访客详情',
+                        
+                        // PC管理端
+                        'qrcode-manage': '项目二维码管理',
+                        'statistics': '访客统计'
+                    };
+                    return titles[this.currentPage] || '';
+                },
+                
+                goBack() {
+                    const platformPages = {
+                        miniprogram: {
+                            'register': 'landing',
+                            'qrcode': 'register',
+                            'owner-review': 'landing'
+                        },
+                        work: {
+                            'record-detail': 'record-list'
+                        },
+                        pc: {}
+                    };
+                    
+                    const previousPage = platformPages[this.currentPlatform]?.[this.currentPage];
+                    if (previousPage) {
+                        this.currentPage = previousPage;
+                    }
+                },
+                
+                showToastMessage(message, type = 'success') {
+                    this.toastMessage = message;
+                    this.toastType = type;
+                    this.showToast = true;
+                    setTimeout(() => {
+                        this.showToast = false;
+                    }, 3000);
+                },
+                
+                showConfirm(title, message, callback) {
+                    this.confirmDialogTitle = title;
+                    this.confirmDialogMessage = message;
+                    this.confirmCallback = callback;
+                    this.showConfirmDialog = true;
+                },
+                
+                confirmAction() {
+                    if (this.confirmCallback) {
+                        this.confirmCallback();
+                    }
+                    this.showConfirmDialog = false;
+                },
+                
+                // ========================================
+                // 小程序端方法
+                // ========================================
+                
+                selectVisitorType(type) {
+                    this.selectedVisitorType = type;
+                },
+                
+                confirmVisitorType(type) {
+                    if (type) {
+                        this.selectedVisitorType = type;
+                    }
+                    
+                    if (!this.selectedVisitorType) {
+                        this.showToastMessage('请选择访客类型', 'warning');
+                        return;
+                    }
+                    
+                    this.formData.visitorType = this.selectedVisitorType;
+                    this.showVisitorTypeModal = false;
+                    this.currentPage = 'register';
+                },
+                
+                selectVisitorTypeFromModal(type) {
+                    this.formData.visitorType = type;
+                    this.showVisitorTypeModal = false;
+                    // 如果切换到外卖/快递，清空房号
+                    if (['外卖', '快递'].includes(type)) {
+                        this.formData.roomNumber = '';
+                        this.selectedRoom = { group: '', building: '', unit: '', room: '' };
+                    }
+                },
+                
+                // 房号级联选择器方法
+                selectGroup(group) {
+                    this.selectedRoom.group = group;
+                    this.selectedRoom.building = '';
+                    this.selectedRoom.unit = '';
+                    this.selectedRoom.room = '';
+                },
+                
+                selectBuilding(building) {
+                    this.selectedRoom.building = building;
+                    this.selectedRoom.unit = '';
+                    this.selectedRoom.room = '';
+                },
+                
+                selectUnit(unit) {
+                    this.selectedRoom.unit = unit;
+                    this.selectedRoom.room = '';
+                },
+                
+                selectRoom(room) {
+                    this.selectedRoom.room = room;
+                },
+                
+                confirmRoomSelection() {
+                    if (!this.selectedRoom.room) {
+                        this.showToastMessage('请选择完整房号', 'warning');
+                        return;
+                    }
+                    
+                    const { group, building, unit, room } = this.selectedRoom;
+                    this.formData.roomNumber = `${group} ${building} ${unit} ${room}`;
+                    this.showRoomPicker = false;
+                },
+                
+                // 场景切换方法
+                switchScenario(scenario) {
+                    switch(scenario) {
+                        case 'register':
+                            this.currentPage = 'register';
+                            break;
+                        case 'qrcode-pending':
+                            this.qrCodeStatus = 'pending';
+                            this.currentPage = 'qrcode';
+                            this.generateQRCode();
+                            break;
+                        case 'qrcode-approved':
+                            this.qrCodeStatus = 'approved';
+                            this.currentPage = 'qrcode';
+                            this.generateQRCode();
+                            break;
+                        case 'qrcode-rejected':
+                            this.qrCodeStatus = 'rejected';
+                            this.currentPage = 'qrcode';
+                            break;
+                        case 'owner-review':
+                            this.currentPage = 'owner-review';
+                            break;
+                    }
+                },
+                
+                getPhoneNumber() {
+                    // 模拟一键登录
+                    this.showToastMessage('获取手机号成功', 'success');
+                },
+                
+                isFormValid() {
+                    if (!this.formData.visitorType || !this.formData.visitorName) {
+                        return false;
+                    }
+                    
+                    if (['探亲访友', '家政维修', '房屋中介'].includes(this.formData.visitorType)) {
+                        if (!this.formData.roomNumber) {
+                            return false;
+                        }
+                    }
+                    
+                    return true;
+                },
+                
+                submitRegistration() {
+                    if (!this.isFormValid()) {
+                        this.showToastMessage('请填写完整信息', 'warning');
+                        return;
+                    }
+                    
+                    this.isSubmitting = true;
+                    
+                    // 模拟提交
+                    setTimeout(() => {
+                        this.isSubmitting = false;
+                        this.currentPage = 'qrcode';
+                        this.generateQRCode();
+                        this.showToastMessage('登记成功', 'success');
+                    }, 1500);
+                },
+                
+                generateQRCode() {
+                    this.$nextTick(() => {
+                        const canvas = document.getElementById('qrcode-canvas');
+                        if (canvas && typeof QRCode !== 'undefined') {
+                            QRCode.toCanvas(canvas, 'VISITOR-' + Date.now(), {
+                                width: 200,
+                                margin: 2,
+                                color: {
+                                    dark: this.qrCodeStatus === 'rejected' ? '#9CA3AF' : '#000000',
+                                    light: '#FFFFFF'
+                                }
+                            }, function(error) {
+                                if (error) console.error(error);
+                            });
+                        }
+                    });
+                },
+                
+                editInfo() {
+                    this.currentPage = 'register';
+                },
+                
+                approveVisitor() {
+                    this.showConfirm(
+                        '确认通过',
+                        '是否同意访客通行?',
+                        () => {
+                            this.showToastMessage('审核成功', 'success');
+                            this.currentPage = 'landing';
+                        }
+                    );
+                },
+                
+                rejectVisitor() {
+                    this.showConfirm(
+                        '确认拒绝',
+                        '是否拒绝访客通行?',
+                        () => {
+                            this.showToastMessage('审核成功', 'success');
+                            this.currentPage = 'landing';
+                        }
+                    );
+                },
+                
+                // ========================================
+                // 企微端方法
+                // ========================================
+                
+                get filteredRecords() {
+                    if (this.filterStatus === 'all') {
+                        return this.records;
+                    }
+                    return this.records.filter(record => record.status === this.filterStatus);
+                },
+                
+                viewRecordDetail(record) {
+                    this.currentRecord = record;
+                    this.currentPage = 'record-detail';
+                },
+                
+                approveRecord(record) {
+                    this.showConfirm(
+                        '确认通过',
+                        '是否同意访客通行?',
+                        () => {
+                            record.status = 'approved';
+                            record.statusText = '已放行';
+                            record.reviewerName = '张三';
+                            record.reviewTime = new Date().toLocaleString('zh-CN', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                second: '2-digit'
+                            }).replace(/\//g, '-');
+                            this.showToastMessage('审核成功', 'success');
+                            if (this.currentPage === 'record-detail') {
+                                this.currentPage = 'record-list';
+                            }
+                        }
+                    );
+                },
+                
+                rejectRecord(record) {
+                    this.showConfirm(
+                        '确认拒绝',
+                        '是否拒绝访客通行?',
+                        () => {
+                            record.status = 'rejected';
+                            record.statusText = '已拒绝';
+                            record.reviewerName = '张三';
+                            record.reviewTime = new Date().toLocaleString('zh-CN', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                second: '2-digit'
+                            }).replace(/\//g, '-');
+                            record.reviewRemark = '信息不实';
+                            this.showToastMessage('审核成功', 'success');
+                            if (this.currentPage === 'record-detail') {
+                                this.currentPage = 'record-list';
+                            }
+                        }
+                    );
+                },
+                
+                forwardToOwner() {
+                    this.showConfirm(
+                        '转发业主审核',
+                        '确认将此访客申请转发给业主审核?',
+                        () => {
+                            this.showToastMessage('已转发业主审核', 'success');
+                            this.currentPage = 'record-list';
+                        }
+                    );
+                },
+                
+                // ========================================
+                // PC管理端方法
+                // ========================================
+                
+                viewQRCode(project) {
+                    this.showToastMessage(`查看项目 ${project.name} 的二维码`, 'success');
+                },
+                
+                downloadQRCode(project) {
+                    this.showToastMessage(`下载项目 ${project.name} 的二维码`, 'success');
+                },
+                
+                toggleProjectStatus(project) {
+                    const action = project.status === 'enabled' ? '禁用' : '启用';
+                    this.showConfirm(
+                        `确认${action}`,
+                        `是否${action}项目 ${project.name}?`,
+                        () => {
+                            project.status = project.status === 'enabled' ? 'disabled' : 'enabled';
+                            this.showToastMessage(`${action}成功`, 'success');
+                        }
+                    );
+                },
+                
+                initCharts() {
+                    this.$nextTick(() => {
+                        setTimeout(() => {
+                            if (typeof Chart === 'undefined') {
+                                console.error('Chart.js is not loaded');
+                                return;
+                            }
+                            
+                            const typeCanvas = document.getElementById('visitor-type-chart');
+                            const trendCanvas = document.getElementById('visitor-trend-chart');
+                            
+                            if (!typeCanvas || !trendCanvas) {
+                                console.error('Chart canvas not found');
+                                return;
+                            }
+                            
+                            const typeCtx = typeCanvas.getContext('2d');
+                            const trendCtx = trendCanvas.getContext('2d');
+                            
+                            new Chart(typeCtx, {
+                                type: 'doughnut',
+                                data: {
+                                    labels: ['探亲访友', '家政维修', '房屋中介', '外卖', '快递'],
+                                    datasets: [{
+                                        data: [35, 20, 15, 18, 12],
+                                        backgroundColor: [
+                                            '#2563EB',
+                                            '#10B981',
+                                            '#8B5CF6',
+                                            '#F59E0B',
+                                            '#EF4444'
+                                        ]
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: {
+                                            position: 'bottom'
+                                        }
+                                    }
+                                }
+                            });
+                            
+                            new Chart(trendCtx, {
+                                type: 'line',
+                                data: {
+                                    labels: ['03-20', '03-21', '03-22', '03-23', '03-24', '03-25', '03-26'],
+                                    datasets: [{
+                                        label: '访客数量',
+                                        data: [120, 150, 180, 160, 200, 220, 234],
+                                        borderColor: '#2563EB',
+                                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                                        tension: 0.4,
+                                        fill: true
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: {
+                                            display: false
+                                        }
+                                    },
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true
+                                        }
+                                    }
+                                }
+                            });
+                        }, 100);
+                    });
+                }
+            }
+        }
+    </script>
+    
+</body>
+</html>
