@@ -1420,36 +1420,46 @@
                             <div class="px-6 py-4 border-b border-gray-200">
                                 <h3 class="text-lg font-semibold text-gray-900">历史记录</h3>
                             </div>
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">访客类型</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">访客姓名</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">访客电话</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作时间</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    <template x-for="record in statisticsRecords" :key="record.id">
-                                        <tr class="hover:bg-gray-50">
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="record.visitorType"></td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="record.visitorName"></td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="record.visitorPhone"></td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="px-2 py-1 text-xs font-medium rounded"
-                                                      :class="{
-                                                          'badge-pending': record.status === 'pending',
-                                                          'badge-success': record.status === 'approved',
-                                                          'badge-danger': record.status === 'rejected'
-                                                      }"
-                                                      x-text="record.statusText"></span>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="record.operationTime"></td>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">访客类型</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">访客姓名</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">访客电话</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">被访人姓名</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">被访人电话</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">被访房号</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">审核人</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">访客时间</th>
                                         </tr>
-                                    </template>
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <template x-for="record in statisticsRecords" :key="record.id">
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900" x-text="record.visitorType"></td>
+                                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500" x-text="record.visitorName"></td>
+                                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500" x-text="record.visitorPhone"></td>
+                                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500" x-text="record.visitedPersonName || '-'"></td>
+                                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500" x-text="record.visitedPersonPhone || '-'"></td>
+                                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500" x-text="record.roomNumber || '-'"></td>
+                                                <td class="px-4 py-4 whitespace-nowrap">
+                                                    <span class="px-2 py-1 text-xs font-medium rounded"
+                                                          :class="{
+                                                              'badge-pending': record.status === 'pending',
+                                                              'badge-success': record.status === 'approved',
+                                                              'badge-danger': record.status === 'rejected'
+                                                          }"
+                                                          x-text="record.statusText"></span>
+                                                </td>
+                                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500" x-text="record.reviewer || '-'"></td>
+                                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500" x-text="record.operationTime"></td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </template>
@@ -1661,8 +1671,12 @@
                         visitorType: '房屋中介',
                         visitorName: '狗蛋',
                         visitorPhone: '133****3333',
+                        visitedPersonName: '李四',
+                        visitedPersonPhone: '139****9999',
+                        roomNumber: 'A组团 1栋 1单元 101',
                         status: 'approved',
                         statusText: '已通过',
+                        reviewer: '王门岗',
                         operationTime: '2025-03-31 18:29:18'
                     },
                     {
@@ -1670,9 +1684,52 @@
                         visitorType: '外卖',
                         visitorName: '张三',
                         visitorPhone: '188****8888',
+                        visitedPersonName: null,
+                        visitedPersonPhone: null,
+                        roomNumber: null,
                         status: 'rejected',
                         statusText: '不通过',
+                        reviewer: '赵门岗',
                         operationTime: '2025-03-31 18:30:25'
+                    },
+                    {
+                        id: 3,
+                        visitorType: '探亲访友',
+                        visitorName: '王五',
+                        visitorPhone: '150****5678',
+                        visitedPersonName: '赵六',
+                        visitedPersonPhone: '136****1234',
+                        roomNumber: 'B组团 2栋 2单元 202',
+                        status: 'pending',
+                        statusText: '待审核',
+                        reviewer: null,
+                        operationTime: '2025-03-31 19:15:30'
+                    },
+                    {
+                        id: 4,
+                        visitorType: '家政维修',
+                        visitorName: '刘师傅',
+                        visitorPhone: '177****2468',
+                        visitedPersonName: '陈业主',
+                        visitedPersonPhone: '158****1357',
+                        roomNumber: 'C组团 3栋 1单元 301',
+                        status: 'approved',
+                        statusText: '已通过',
+                        reviewer: '李门岗',
+                        operationTime: '2025-03-31 17:45:12'
+                    },
+                    {
+                        id: 5,
+                        visitorType: '快递',
+                        visitorName: '马小哥',
+                        visitorPhone: '166****7890',
+                        visitedPersonName: null,
+                        visitedPersonPhone: null,
+                        roomNumber: null,
+                        status: 'approved',
+                        statusText: '已通过',
+                        reviewer: '自动审核',
+                        operationTime: '2025-03-31 16:20:45'
                     }
                 ],
                 
