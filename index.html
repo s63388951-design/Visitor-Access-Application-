@@ -593,6 +593,33 @@
                                         </div>
                                     </div>
                                 </template>
+                                
+                                <!-- 被访人姓名 (仅探亲访友/家政维修/房屋中介显示) -->
+                                <template x-if="['探亲访友', '家政维修', '房屋中介'].includes(formData.visitorType)">
+                                    <div class="px-4 py-3 border-b border-gray-100">
+                                        <label class="text-sm text-gray-700 block mb-2">
+                                            <span class="text-red-500">*</span> 被访人姓名
+                                        </label>
+                                        <input type="text" 
+                                               x-model="formData.visitedPersonName" 
+                                               placeholder="请输入被访人姓名"
+                                               class="input-field border-none px-0">
+                                    </div>
+                                </template>
+                                
+                                <!-- 被访人手机号 (仅探亲访友/家政维修/房屋中介显示) -->
+                                <template x-if="['探亲访友', '家政维修', '房屋中介'].includes(formData.visitorType)">
+                                    <div class="px-4 py-3 border-b border-gray-100">
+                                        <label class="text-sm text-gray-700 block mb-2">
+                                            <span class="text-red-500">*</span> 被访人手机号
+                                        </label>
+                                        <input type="tel" 
+                                               x-model="formData.visitedPersonPhone" 
+                                               placeholder="请输入被访人手机号"
+                                               maxlength="11"
+                                               class="input-field border-none px-0">
+                                    </div>
+                                </template>
                             </div>
                         </div>
                         
@@ -1888,6 +1915,12 @@
                     
                     if (['探亲访友', '家政维修', '房屋中介'].includes(this.formData.visitorType)) {
                         if (!this.formData.roomNumber) {
+                            return false;
+                        }
+                        if (!this.formData.visitedPersonName) {
+                            return false;
+                        }
+                        if (!this.formData.visitedPersonPhone) {
                             return false;
                         }
                     }
