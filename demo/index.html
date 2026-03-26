@@ -497,6 +497,56 @@
                 </template>
                 
                 <!-- ========================================
+                     查看二维码弹窗
+                     ======================================== -->
+                <div x-show="showQRCodeModal" 
+                     class="fixed inset-0 z-50 flex items-center justify-center"
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition ease-in duration-200"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0">
+                    <!-- 背景遮罩 -->
+                    <div class="absolute inset-0 bg-black bg-opacity-50" @click="showQRCodeModal = false"></div>
+                    
+                    <!-- 弹窗内容 -->
+                    <div class="relative bg-white rounded-lg p-6 shadow-xl max-w-md w-full mx-4">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-lg font-semibold" x-text="'项目二维码 - ' + (selectedProject ? selectedProject.name : '')"></h3>
+                            <button @click="showQRCodeModal = false" class="text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- 二维码显示 -->
+                        <div class="flex justify-center mb-6">
+                            <div class="w-[250px] h-[250px] bg-white border-2 border-gray-200 rounded-lg overflow-hidden p-4">
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=PROJECT_QRCODE_DEMO&color=000000&bgcolor=FFFFFF" 
+                                     alt="项目二维码" 
+                                     class="w-full h-full">
+                            </div>
+                        </div>
+                        
+                        <!-- 提示信息 -->
+                        <div class="text-center text-sm text-gray-500 mb-6">
+                            <p>扫描此二维码可进入访客登记页面</p>
+                            <p class="mt-1">有效期：长期有效</p>
+                        </div>
+                        
+                        <!-- 操作按钮 -->
+                        <div class="flex gap-3">
+                            <button @click="downloadQRCodeImage()" class="flex-1 btn-primary">
+                                <i class="fas fa-download mr-2"></i>下载二维码
+                            </button>
+                            <button @click="showQRCodeModal = false" class="flex-1 btn-outline">
+                                关闭
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ========================================
                      访客登记页
                      ======================================== -->
                 <template x-if="currentPage === 'register'">
@@ -597,9 +647,16 @@
                         <div class="bg-white rounded-lg p-6 shadow-sm mb-6">
                             <div class="flex justify-center mb-4">
                                 <div class="relative">
-                                    <canvas id="qrcode-canvas" width="200" height="200"></canvas>
+                                    <!-- 小程序二维码 -->
+                                    <div class="w-[200px] h-[200px] bg-white border-2 border-gray-200 rounded-lg overflow-hidden">
+                                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=VISITOR_PASS_123456&color=000000&bgcolor=FFFFFF" 
+                                             alt="访客通行码" 
+                                             class="w-full h-full"
+                                             x-show="qrCodeStatus !== 'rejected'">
+                                    </div>
+                                    <!-- 拒绝状态遮罩 -->
                                     <div x-show="qrCodeStatus === 'rejected'" 
-                                         class="absolute inset-0 bg-gray-200 bg-opacity-90 flex items-center justify-center rounded">
+                                         class="absolute inset-0 bg-gray-200 bg-opacity-90 flex items-center justify-center rounded-lg">
                                         <i class="fas fa-times-circle text-6xl text-red-500"></i>
                                     </div>
                                 </div>
@@ -1560,6 +1617,9 @@
                 confirmDialogMessage: '',
                 confirmCallback: null,
                 
+                showQRCodeModal: false,
+                selectedProject: null,
+                
                 showToast: false,
                 toastMessage: '',
                 toastType: 'success',
@@ -1930,11 +1990,21 @@
                 // ========================================
                 
                 viewQRCode(project) {
-                    this.showToastMessage(`查看项目 ${project.name} 的二维码`, 'success');
+                    this.selectedProject = project;
+                    this.showQRCodeModal = true;
+                },
+                
+                downloadQRCodeImage() {
+                    const link = document.createElement('a');
+                    link.href = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=PROJECT_QRCODE_DEMO&color=000000&bgcolor=FFFFFF';
+                    link.download = `项目二维码_${this.selectedProject ? this.selectedProject.name : 'demo'}.png`;
+                    link.click();
+                    this.showToastMessage('二维码下载成功', 'success');
                 },
                 
                 downloadQRCode(project) {
-                    this.showToastMessage(`下载项目 ${project.name} 的二维码`, 'success');
+                    this.selectedProject = project;
+                    this.downloadQRCodeImage();
                 },
                 
                 toggleProjectStatus(project) {
