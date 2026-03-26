@@ -342,69 +342,72 @@
     <!-- ========================================
          平台选择器
          ======================================== -->
-    <div class="fixed top-4 right-4 z-50 bg-white rounded-lg shadow-lg p-4" x-show="!isProduction">
-        <div class="text-sm font-medium text-gray-700 mb-2">选择平台:</div>
-        <div class="flex gap-2 mb-3">
-            <button @click="currentPlatform = 'miniprogram'" 
-                    :class="currentPlatform === 'miniprogram' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'"
-                    class="px-4 py-2 rounded-lg text-sm font-medium transition-all">
-                小程序端
-            </button>
-            <button @click="currentPlatform = 'work'" 
-                    :class="currentPlatform === 'work' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'"
-                    class="px-4 py-2 rounded-lg text-sm font-medium transition-all">
-                企微端
-            </button>
-            <button @click="currentPlatform = 'pc'" 
-                    :class="currentPlatform === 'pc' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'"
-                    class="px-4 py-2 rounded-lg text-sm font-medium transition-all">
-                PC管理端
-            </button>
+    <div class="fixed top-4 right-4 z-50" x-show="!isProduction">
+        <!-- 平台选择按钮组 -->
+        <div class="bg-white rounded-lg shadow-lg p-3 mb-2">
+            <div class="text-xs font-medium text-gray-500 mb-2">平台</div>
+            <div class="flex gap-1">
+                <button @click="currentPlatform = 'miniprogram'" 
+                        :class="currentPlatform === 'miniprogram' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'"
+                        class="px-2 py-1 rounded text-xs font-medium transition-all">
+                    小程序
+                </button>
+                <button @click="currentPlatform = 'work'" 
+                        :class="currentPlatform === 'work' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'"
+                        class="px-2 py-1 rounded text-xs font-medium transition-all">
+                    企微
+                </button>
+                <button @click="currentPlatform = 'pc'" 
+                        :class="currentPlatform === 'pc' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'"
+                        class="px-2 py-1 rounded text-xs font-medium transition-all">
+                    PC
+                </button>
+            </div>
         </div>
         
         <!-- 小程序场景切换器 -->
-                <template x-if="currentPlatform === 'miniprogram'">
-                    <div class="border-t pt-3">
-                        <div class="text-sm font-medium text-gray-700 mb-2">场景切换:</div>
-                        <div class="flex flex-wrap gap-2">
-                            <button @click="switchScenario('register')" 
-                                    :class="currentPage === 'register' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'"
-                                    class="px-3 py-1.5 rounded text-xs font-medium transition-all">
-                                登记页
-                            </button>
-                            <button @click="switchScenario('qrcode-pending')" 
-                                    :class="currentPage === 'qrcode' && qrCodeStatus === 'pending' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'"
-                                    class="px-3 py-1.5 rounded text-xs font-medium transition-all">
-                                待审核
-                            </button>
-                            <button @click="switchScenario('qrcode-approved')" 
-                                    :class="currentPage === 'qrcode' && qrCodeStatus === 'approved' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'"
-                                    class="px-3 py-1.5 rounded text-xs font-medium transition-all">
-                                审核通过
-                            </button>
-                            <button @click="switchScenario('qrcode-rejected')" 
-                                    :class="currentPage === 'qrcode' && qrCodeStatus === 'rejected' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'"
-                                    class="px-3 py-1.5 rounded text-xs font-medium transition-all">
-                                审核拒绝
-                            </button>
-                            <button @click="switchScenario('qrcode-expired')" 
-                                    :class="currentPage === 'qrcode' && qrCodeStatus === 'expired' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'"
-                                    class="px-3 py-1.5 rounded text-xs font-medium transition-all">
-                                已过期
-                            </button>
-                            <button @click="switchScenario('owner-review')" 
-                                    :class="currentPage === 'owner-review' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'"
-                                    class="px-3 py-1.5 rounded text-xs font-medium transition-all">
-                                业主审核
-                            </button>
-                            <button @click="switchScenario('qrcode-disabled')" 
-                                    :class="currentPage === 'qrcode' && qrCodeStatus === 'disabled' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'"
-                                    class="px-3 py-1.5 rounded text-xs font-medium transition-all">
-                                二维码禁用
-                            </button>
-                        </div>
-                    </div>
-                </template>
+        <template x-if="currentPlatform === 'miniprogram'">
+            <div class="bg-white rounded-lg shadow-lg p-3 max-w-[200px]">
+                <div class="text-xs font-medium text-gray-500 mb-2">场景</div>
+                <div class="grid grid-cols-2 gap-1">
+                    <button @click="switchScenario('register')" 
+                            :class="currentPage === 'register' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'"
+                            class="px-2 py-1 rounded text-xs font-medium transition-all text-center">
+                        登记页
+                    </button>
+                    <button @click="switchScenario('qrcode-pending')" 
+                            :class="currentPage === 'qrcode' && qrCodeStatus === 'pending' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'"
+                            class="px-2 py-1 rounded text-xs font-medium transition-all text-center">
+                        待审核
+                    </button>
+                    <button @click="switchScenario('qrcode-approved')" 
+                            :class="currentPage === 'qrcode' && qrCodeStatus === 'approved' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'"
+                            class="px-2 py-1 rounded text-xs font-medium transition-all text-center">
+                        已通过
+                    </button>
+                    <button @click="switchScenario('qrcode-rejected')" 
+                            :class="currentPage === 'qrcode' && qrCodeStatus === 'rejected' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'"
+                            class="px-2 py-1 rounded text-xs font-medium transition-all text-center">
+                        已拒绝
+                    </button>
+                    <button @click="switchScenario('qrcode-expired')" 
+                            :class="currentPage === 'qrcode' && qrCodeStatus === 'expired' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'"
+                            class="px-2 py-1 rounded text-xs font-medium transition-all text-center">
+                        已过期
+                    </button>
+                    <button @click="switchScenario('owner-review')" 
+                            :class="currentPage === 'owner-review' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'"
+                            class="px-2 py-1 rounded text-xs font-medium transition-all text-center">
+                        业主审核
+                    </button>
+                    <button @click="switchScenario('qrcode-disabled')" 
+                            :class="currentPage === 'qrcode' && qrCodeStatus === 'disabled' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'"
+                            class="px-2 py-1 rounded text-xs font-medium transition-all text-center">
+                        已禁用
+                    </button>
+                </div>
+            </div>
+        </template>
     </div>
     
     <!-- ========================================
